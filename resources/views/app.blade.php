@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <title>My App</title>
+  @vite('resources/js/app.js')
+</head>
+<body>
+  <div id="app"></div>
+</body>
+</html>
