@@ -6,8 +6,8 @@ import HomeView from "./views/HomeView.vue";
 import RegisterView from "./views/RegisterView.vue";
 
 const routes = [
-    { path: "/login", component: LoginView, meta: { guestOnly: true }, },
-    { path: "/", component: HomeView, meta: { requiresAuth: true }, },
+    { path: "/login", component: LoginView, meta: { guestOnly: true } },
+    { path: "/", component: HomeView, meta: { requiresAuth: true } },
     { path: "/register", component: RegisterView, meta: { guestOnly: true } },
 ];
 
@@ -17,28 +17,30 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+    const token = getAccessToken();
+
     if (to.meta.guestOnly) {
-        if (getAccessToken())
-            return next("/");
+        if (token) return next("/");
 
         try {
-            const res = await refreshToken();
-            
+            await refreshToken();
             return next("/");
         } catch {
             return next();
         }
-    } else {
-        if (getAccessToken())
-            return next();
+    }
+
+    if (to.meta.requiresAuth) {
+        if (token) return next();
 
         try {
-            const res = await refreshToken();
+            await refreshToken();
             return next();
         } catch {
             return next("/login");
         }
     }
+        return next();
 });
 
 export default router;

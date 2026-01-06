@@ -44,6 +44,34 @@
           <span class="arrow">→</span>
         </button>
 
+        <button
+          type="button"
+          @click.prevent="loginWithGoogle"
+          style="
+            width:100%;
+            padding:10px;
+            background:#fff;
+            border:1px solid #ddd;
+            cursor:pointer;
+          "
+        >
+          Google 登入
+        </button>
+
+        <button
+          type="button"
+          @click.prevent="loginWithGithub"
+          style="
+            width:100%;
+            padding:10px;
+            background:#fff;
+            border:1px solid #ddd;
+            cursor:pointer;
+          "
+        >
+          github 登入
+        </button>
+
         <div v-if="error" class="alert">
           <span class="dot"></span>
           <span>{{ error }}</span>
@@ -62,6 +90,7 @@
     import { useRouter } from "vue-router";
     import { reactive, ref } from "vue";
     import { login } from "../services/auth";
+    import { getSocialRedirectUrl } from "../services/socialAuth";
 
     const loading = ref(false);
     const error = ref("");
@@ -86,6 +115,24 @@
             error.value = e?.response?.data?.message || "登入失敗";
         } finally {
             loading.value = false;
+        }
+    };
+
+    const loginWithGoogle = async () => {
+        try {
+            const url = await getSocialRedirectUrl("google");
+            window.location.href = url;
+        } catch (e) {
+            alert("Google 登入失敗");
+        }
+    };
+
+    const loginWithGithub = async () => {
+        try {
+            const url = await getSocialRedirectUrl("github");
+            window.location.href = url;
+        } catch (e) {
+            alert("github 登入失敗");
         }
     };
 </script>
