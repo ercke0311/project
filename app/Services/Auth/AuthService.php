@@ -10,11 +10,11 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthService
 {
-    public function rotateRefreshToken(string $refreshPlain, array $meta): ?array
+    public function refreshAccessToken(string $refreshPlain, array $meta): ?array
     {
-        $hash = hash('sha256', $refreshPlain);
+        return DB::transaction(function () use ($refreshPlain, $meta) {
+            $hash = hash('sha256', $refreshPlain);
 
-        return DB::transaction(function () use ($hash, $meta) {
             $record = RefreshToken::where('token_hash', $hash)
                 ->whereNull('revoked_at')
                 ->where('expires_at', '>', now())
@@ -30,17 +30,13 @@ class AuthService
                 return null;
             }
 
-            $record->update(['revoked_at' => now()]);
-
             $accessToken = auth()->login($user);
             $expiresIn   = auth()->factory()->getTTL() * 60;
-
-            $refreshCookie = $this->createRefreshToken($user->id, $meta);
 
             return [
                 'access_token'   => $accessToken,
                 'expires_in'     => $expiresIn,
-                'refresh_cookie' => $refreshCookie,
+                'refresh_cookie' => $refreshPlain,
                 'user'           => $user,
             ];
         });

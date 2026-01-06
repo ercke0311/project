@@ -88,10 +88,10 @@ class AuthController extends Controller
             'ip' => $request->ip(),
         ];
 
-        $result = $this->authService->rotateRefreshToken($refreshPlain, $meta);
+        $result = $this->authService->refreshAccessToken($refreshPlain, $meta);
 
         if (! $result) {
-            return response()->json(['message' => 'refresh token invalid'], 401)
+            return response()->json(['message' => 'get access token invalid'], 401)
                 ->withoutCookie('refresh_token');
         }
 
@@ -99,7 +99,7 @@ class AuthController extends Controller
             'access_token' => $result['access_token'],
             'token_type' => 'Bearer',
             'expires_in' => $result['expires_in'],
-        ])->cookie($result['refresh_cookie']);
+        ]);
     }
 
     public function me()
