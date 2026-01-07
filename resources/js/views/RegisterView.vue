@@ -108,8 +108,13 @@ const submit = async () => {
         await register(form);
         router.push("/login");
     } catch (e) {
-        error.value = e?.response?.data?.errors ||
-            "註冊失敗，請確認資料是否正確";
+        const errors = e?.response?.data?.errors;
+
+        const messages = errors
+          ? Object.values(errors).flat().join("、")
+          : "";
+
+        error.value = messages || "註冊失敗，請確認資料是否正確";
     } finally {
         loading.value = false;
     }
