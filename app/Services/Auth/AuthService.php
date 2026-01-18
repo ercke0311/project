@@ -4,42 +4,38 @@ namespace App\Services\Auth;
 
 use App\Models\RefreshToken;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Cookie;
 
 class AuthService
 {
-    public function refreshAccessToken(string $refreshPlain, array $meta): ?array
+    public function refreshAccessToken(string $refreshPlain): ?array
     {
-        return DB::transaction(function () use ($refreshPlain, $meta) {
-            $hash = hash('sha256', $refreshPlain);
+        $hash = hash('sha256', $refreshPlain);
 
-            $record = RefreshToken::where('token_hash', $hash)
-                ->whereNull('revoked_at')
-                ->where('expires_at', '>', now())
-                ->lockForUpdate()
-                ->first();
+        $record = RefreshToken::where('token_hash', $hash)
+            ->whereNull('revoked_at')
+            ->where('expires_at', '>', now())
+            ->first();
 
-            if (! $record) {
-                return null;
-            }
+        if (! $record) {
+            return null;
+        }
 
-            $user = User::find($record->user_id);
-            if (! $user) {
-                return null;
-            }
+        $user = User::find($record->user_id);
+        if (! $user) {
+            return null;
+        }
 
-            $accessToken = auth()->login($user);
-            $expiresIn   = auth()->factory()->getTTL() * 60;
+        $accessToken = auth()->login($user);
+        $expiresIn   = auth()->factory()->getTTL() * 60;
 
-            return [
-                'access_token'   => $accessToken,
-                'expires_in'     => $expiresIn,
-                'refresh_cookie' => $refreshPlain,
-                'user'           => $user,
-            ];
-        });
+        return [
+            'access_token'   => $accessToken,
+            'expires_in'     => $expiresIn,
+            'refresh_cookie' => $refreshPlain,
+            'user'           => $user,
+        ];
     }
 
     public function createRefreshToken($userId, $meta): Cookie
@@ -55,10 +51,10 @@ class AuthService
             'ip'          => $meta['ip'],
         ]);
 
-        return $this->refreshCookie($refreshPlain);
+        return $this->setRefreshTokenCookie($refreshPlain);
     }
 
-    private function refreshCookie(string $refreshPlain): Cookie
+    private function setRefreshTokenCookie(string $refreshPlain): Cookie
     {
         return cookie(
             name: 'refresh_token',

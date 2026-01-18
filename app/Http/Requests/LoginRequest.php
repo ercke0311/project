@@ -7,7 +7,7 @@ class LoginRequest extends ApiBaseRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required'],
         ];
     }
@@ -15,8 +15,8 @@ class LoginRequest extends ApiBaseRequest
     public function messages(): array
     {
         return [
-            // 'email' => '電子郵件',
-            // 'password' => '密碼',
+            'email.required' => '請輸入電子郵件',
+            'password.required' => '請輸入密碼',
         ];
     }
 }

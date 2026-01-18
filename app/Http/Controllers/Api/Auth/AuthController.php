@@ -8,6 +8,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Models\RefreshToken;
 use App\Models\User;
 use App\Services\Auth\AuthService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,7 +18,7 @@ class AuthController extends Controller
         private AuthService $authService
     ) {}
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
         if (!$accessToken = auth()->attempt($credentials)) {
@@ -33,7 +34,7 @@ class AuthController extends Controller
             'ip' => $request->ip(),
         ];
 
-        $refreshCookie = $this->authService->createRefreshToken($user->id, $meta);
+        $refreshTokenCookie = $this->authService->createRefreshToken($user->id, $meta);
 
         return response()->json([
             'access_token' => $accessToken,
@@ -44,10 +45,10 @@ class AuthController extends Controller
                 'name'  => $user->name,
                 'email' => $user->email,
             ],
-        ])->cookie($refreshCookie);
+        ])->cookie($refreshTokenCookie);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $refreshPlain = (string) $request->cookie('refresh_token');
         if ($refreshPlain !== '') {
@@ -62,7 +63,7 @@ class AuthController extends Controller
             ->withoutCookie('refresh_token');
     }
     
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([
             'name'     => $request->name,
@@ -75,7 +76,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function refresh(Request $request)
+    public function refreshAccessToken(Request $request): JsonResponse
     {
         $refreshPlain = (string) $request->cookie('refresh_token');
         
@@ -83,12 +84,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'no refresh token'], 401);
         }
 
-        $meta = [
-            'user_agent' => substr((string) $request->userAgent(), 0, 255),
-            'ip' => $request->ip(),
-        ];
-
-        $result = $this->authService->refreshAccessToken($refreshPlain, $meta);
+        $result = $this->authService->refreshAccessToken($refreshPlain);
 
         if (! $result) {
             return response()->json(['message' => 'get access token invalid'], 401)
@@ -102,7 +98,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function me()
+    public function me(): JsonResponse
     {
         $user = auth()->user();
 

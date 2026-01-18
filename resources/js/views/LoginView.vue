@@ -72,6 +72,20 @@
           github 登入
         </button>
 
+        <button
+          type="button"
+          @click.prevent="loginWithLine"
+          style="
+            width:100%;
+            padding:10px;
+            background:#fff;
+            border:1px solid #ddd;
+            cursor:pointer;
+          "
+        >
+          line 登入
+        </button>
+
         <div v-if="error" class="alert">
           <span class="dot"></span>
           <span>{{ error }}</span>
@@ -120,8 +134,8 @@
 
     const loginWithGoogle = async () => {
         try {
-            const url = await getSocialRedirectUrl("google");
-            window.location.href = url;
+            const res = await getSocialRedirectUrl("google");
+            window.location.href = res.redirect_url;
         } catch (e) {
             alert("Google 登入失敗");
         }
@@ -129,10 +143,19 @@
 
     const loginWithGithub = async () => {
         try {
-            const url = await getSocialRedirectUrl("github");
-            window.location.href = url;
+            const res = await getSocialRedirectUrl("github");
+            window.location.href = res.redirect_url;
         } catch (e) {
             alert("github 登入失敗");
+        }
+    };
+
+    const loginWithLine = async () => {
+        try {
+            const res = await getSocialRedirectUrl("line");
+            window.location.href = res.redirect_url;
+        } catch (e) {
+            alert("line 登入失敗");
         }
     };
 </script>

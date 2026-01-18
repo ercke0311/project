@@ -9,17 +9,16 @@ Route::prefix('auth')->group(function () {
         ->name('auth.login');
     Route::post('/register', [AuthController::class, 'register'])
         ->name('auth.register');
-    Route::post('/refresh', [AuthController::class, 'refresh'])
+    Route::post('/refresh', [AuthController::class, 'refreshAccessToken'])
         ->name('auth.refresh');
     Route::post('/logout', [AuthController::class, 'logout'])
-        ->middleware('auth:api')
         ->name('auth.logout');
     Route::get('/me', [AuthController::class, 'me'])
         ->middleware('auth:api')
         ->name('auth.me');
     //third party
-    Route::get('/social/{driver}/url', [SocialLoginController::class, 'getRedirectUrl'])
+    Route::get('/social/{provider}/url', [SocialLoginController::class, 'getRedirectUrl'])
         ->name('auth.social.url');
-    Route::get('/social/{driver}/callback', [SocialLoginController::class, 'callback'])
+    Route::get('/social/{provider}/callback', [SocialLoginController::class, 'callback'])
         ->name('auth.social.callback');
 });

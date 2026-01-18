@@ -45,6 +45,8 @@ return [
         'client_id' => env('LINE_CLIENT_ID'),
         'client_secret' => env('LINE_CLIENT_SECRET'),
         'redirect' => env('LINE_REDIRECT_URI', 'https://project.dev/auth/line/callback'),
+        'authorization_url' => env('LINE_AUTHORIZATION_URL'),
+        'api_url' => env('LINE_API_URL'),
     ],
     
     'github' => [
