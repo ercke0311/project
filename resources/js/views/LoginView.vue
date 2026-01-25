@@ -44,47 +44,41 @@
           <span class="arrow">→</span>
         </button>
 
-        <button
-          type="button"
-          @click.prevent="loginWithGoogle"
-          style="
-            width:100%;
-            padding:10px;
-            background:#fff;
-            border:1px solid #ddd;
-            cursor:pointer;
-          "
-        >
-          Google 登入
-        </button>
+        <div class="social-buttons">
+          <button
+            type="button"
+            class="social-btn google"
+            @click.prevent="socialLogin('google')"
+            aria-label="Google 登入"
+          >
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.6 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
+              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 16.1 4 9.3 8.5 6.3 14.7z"/>
+              <path fill="#4CAF50" d="M24 44c5.1 0 9.8-1.9 13.4-5.1l-6.2-5.1C29.4 35.3 26.8 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.2 39.5 16 44 24 44z"/>
+              <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.2 3.3-4.1 5.8-8.1 5.8-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.2 39.5 16 44 24 44c11.1 0 20-8.9 20-20 0-1.3-.1-2.7-.4-3.5z"/>
+            </svg>
+          </button>
 
-        <button
-          type="button"
-          @click.prevent="loginWithGithub"
-          style="
-            width:100%;
-            padding:10px;
-            background:#fff;
-            border:1px solid #ddd;
-            cursor:pointer;
-          "
-        >
-          github 登入
-        </button>
+          <button
+            type="button"
+            class="social-btn github"
+            @click.prevent="socialLogin('github')"
+            aria-label="GitHub 登入"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 .5C5.7.5.5 5.7.5 12a11.5 11.5 0 0 0 7.9 11c.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.6-1.3-1.6-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1.8 1.9 2.6 2.3.1-.8.4-1.2.7-1.5-2.6-.3-5.4-1.3-5.4-5.7 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.4.1-2.9 0 0 1-.3 3.2 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.2-1.5 3.2-1.2 3.2-1.2.6 1.5.2 2.6.1 2.9.8.9 1.2 1.9 1.2 3.2 0 4.4-2.8 5.4-5.4 5.7.4.3.8 1 .8 2.1v3.1c0 .4.2.7.8.6A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5z"/>
+            </svg>
+          </button>
 
-        <button
-          type="button"
-          @click.prevent="loginWithLine"
-          style="
-            width:100%;
-            padding:10px;
-            background:#fff;
-            border:1px solid #ddd;
-            cursor:pointer;
-          "
-        >
-          line 登入
-        </button>
+          <button
+            type="button"
+            class="social-btn line"
+            @click.prevent="socialLogin('line')"
+            aria-label="LINE 登入"
+          >
+            <img :src="lineLogo" alt="LINE" />
+          </button>
+        </div>
 
         <div v-if="error" class="alert">
           <span class="dot"></span>
@@ -105,6 +99,7 @@
     import { reactive, ref } from "vue";
     import { login } from "../services/auth";
     import { getSocialRedirectUrl } from "../services/socialAuth";
+    import lineLogo from "../assets/line_login_button.png";
 
     const loading = ref(false);
     const error = ref("");
@@ -132,30 +127,12 @@
         }
     };
 
-    const loginWithGoogle = async () => {
+    const socialLogin = async (provider) => {
         try {
-            const res = await getSocialRedirectUrl("google");
+            const res = await getSocialRedirectUrl(provider);
             window.location.href = res.redirect_url;
         } catch (e) {
-            alert("Google 登入失敗");
-        }
-    };
-
-    const loginWithGithub = async () => {
-        try {
-            const res = await getSocialRedirectUrl("github");
-            window.location.href = res.redirect_url;
-        } catch (e) {
-            alert("github 登入失敗");
-        }
-    };
-
-    const loginWithLine = async () => {
-        try {
-            const res = await getSocialRedirectUrl("line");
-            window.location.href = res.redirect_url;
-        } catch (e) {
-            alert("line 登入失敗");
+            alert(`${provider.toUpperCase()} 登入失敗`);
         }
     };
 </script>
@@ -303,6 +280,56 @@
 .btn:disabled {
   opacity: .55;
   cursor: not-allowed;
+}
+
+.social-buttons {
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.social-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(15,23,42,.55);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+
+.social-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.social-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.social-btn.google {
+  background: rgba(255,255,255,.9);
+  border-color: rgba(255,255,255,.85);
+}
+
+.social-btn.github {
+  color: #e5e7eb;
+}
+
+.social-btn.line {
+  background: rgba(0,195,0,.16);
+  border-color: rgba(0,195,0,.4);
+}
+
+.social-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.35);
 }
 
 /* Error */
